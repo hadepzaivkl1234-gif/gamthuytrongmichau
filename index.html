@@ -1,4 +1,17 @@
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Trọng Thủy Giải Cứu Mị Nương</title>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Trọng Thủy Giải Cứu Mị Châu</title>
+<script>
+  window.MathJax = {
+    loader: { load: ['[tex]/mhchem'] },
+    tex: {
+      packages: { '[+]': ['mhchem'] },
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Segoe UI',system-ui,sans-serif}
 html,body{width:100%;height:100%;background:#090d16;color:#f0f6fc;overflow:hidden}
@@ -22,8 +35,23 @@ canvas{width:100%;height:100%;object-fit:contain;display:block}
 #tc{display:none;justify-content:space-between;padding:6px 14px 10px;background:#0d1117}#tc div{display:flex;gap:12px}
 @media(pointer:coarse){#tc{display:flex}}
 .t{width:60px;height:60px;border-radius:50%;background:rgba(48,54,61,.8);border:2px solid #58a6ff;color:#fff;font-size:22px;touch-action:none}.t.pr{background:#1f6feb}
-#ov.low{background:none;pointer-events:none;align-items:flex-end;padding:6px}#ov.low .cd{pointer-events:auto;background:none;border:0;padding:0;max-width:340px}
+#ov.low{background:none;pointer-events:none;align-items:flex-end;padding:6px}#ov.low .cd{margin:auto auto 0;pointer-events:auto;background:none;border:0;padding:0;max-width:340px}
 #rel img{width:26px;height:26px;opacity:.28;filter:grayscale(1);margin:0 2px;vertical-align:middle}#rel img.on{opacity:1;filter:none}
+input{user-select:text;-webkit-user-select:text}
+.op:hover{border-color:#58a6ff}.b:disabled{opacity:.45;cursor:not-allowed}
+.tfr{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px;margin:6px 0;text-align:left;font-size:14px;line-height:1.45}
+.tfr.ok{border-color:#2ea043;background:#10261a}.tfr.no{border-color:#da3633;background:#2a1517}
+.tfb{padding:7px 16px;margin:6px 6px 0 0;background:#21262d;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-weight:700;cursor:pointer;transition:.15s}
+.tfb.sel{background:#1f6feb;border-color:#79c0ff;transform:scale(1.06);box-shadow:0 0 8px #1f6feb}.tfb:disabled{cursor:default}
+.ex{font-size:12px;color:#c9d1d9;margin-top:4px}
+#sa{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #58a6ff;background:#0d1117;color:#fff;font-size:16px}
+mjx-container,mjx-container *{box-sizing:content-box}mjx-container{max-width:100%}.op mjx-container,.tfr mjx-container{vertical-align:middle}
+#fb{padding:0;border-radius:8px;margin-top:8px;font-size:14px;line-height:1.5}
+#fb.good,#fb.bad{padding:10px 12px}#fb.good{background:#10261a;border:1px solid #2ea043;color:#b8f0c3;animation:pop .35s}#fb.bad{background:#2a1517;border:1px solid #da3633;color:#ffb3ad;animation:shk .35s}
+.cd.glow{animation:glow 1.2s}.op.no{opacity:.85}.op:disabled{cursor:default}
+@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes glow{0%{box-shadow:0 0 0 rgba(46,160,67,0)}40%{box-shadow:0 0 30px rgba(46,160,67,.85)}100%{box-shadow:0 0 0 rgba(46,160,67,0)}}
 </style></head><body><div id="app">
 <div id="hud"><span class="p" id="hl"></span><span class="p">❤ <span class="bar"><i id="hb"></i></span> <b id="ht"></b></span><span class="p" id="ha"></span><span class="p" id="hs"></span><span class="p" id="hm"></span><span id="rel"></span><span style="flex:1"></span><button class="p" onclick="inv()" title="Túi đồ (I)">🎒</button><button class="p" id="mb" onclick="mute()">🔊</button><input type="range" id="vol" min="0" max="1" step=".05" oninput="setv(this.value)"></div>
 <div id="stage"><canvas id="c" width="900" height="460"></canvas><div id="ov"></div></div>
@@ -47,39 +75,53 @@ function music(i){clearInterval(mt);mi=i;if(i<0)return;mt=setInterval(()=>{if(!A
 function mute(){S.mute^=1;au();save();hud()}
 function setv(v){S.vol=+v;if(mg)mg.gain.value=S.mute?0:S.vol;save()}
 // ===== NGÂN HÀNG CÂU HỎI (đã kiểm tra đáp án) =====
+// ===== NGÂN HÀNG CÂU HỎI: mỗi màn dùng đúng một hình thức (QT) =====
+// t='mc' trắc nghiệm: o=4 phương án, a=chỉ số đáp án đúng, e=giải thích
+// t='tf' đúng/sai: i=[[nhận định, 1=Đúng|0=Sai, giải thích] x4]
+// t='sa' trả lời ngắn: a=[các đáp án chấp nhận], e=giải thích
+// Để thêm câu mới: chỉ cần thêm một đối tượng cùng dạng vào mảng QB (s = chỉ số môn trong SUB).
 const SUB=['HÓA HỌC 12','VẬT LÝ 12','TOÁN HỌC 12','SINH HỌC 12','TỔNG HỢP TOÁN – LÝ 12'];
+const QT=['mc','tf','tf','sa','sa'],LP=[[0],[1],[2],[3],[4]],TL={mc:'TRẮC NGHIỆM',tf:'ĐÚNG/SAI',sa:'TRẢ LỜI NGẮN'};
 const QB=[
-[0,"Đồng thau (dùng làm đồ dùng, binh khí cổ) là hợp kim của đồng (Cu) với kim loại nào sau đây?",["Kẽm (Zn)","Nhôm (Al)","Sắt (Fe)","Bạc (Ag)"],0,"Đồng thau là hợp kim Cu–Zn."],
-[0,"Để bảo vệ chi tiết bằng sắt khỏi ăn mòn điện hóa trong môi trường ẩm, người ta gắn vào nó lá kim loại nào?",["Đồng (Cu)","Kẽm (Zn)","Bạc (Ag)","Chì (Pb)"],1,"Zn hoạt động hơn Fe nên bị ăn mòn thay (bảo vệ điện hóa)."],
-[0,"Glucozơ (C6H12O6) thuộc loại cacbohiđrat nào?",["Monosaccarit","Đisaccarit","Polisaccarit","Lipit"],0,"Glucozơ là monosaccarit."],
-[0,"Phản ứng thủy phân este trong dung dịch NaOH, đun nóng, gọi là phản ứng:",["Este hóa","Xà phòng hóa","Trùng ngưng","Hiđro hóa"],1,"Tạo muối cacboxylat và ancol."],
-[1,"Cơ cấu lẫy nỏ như con lắc lò xo có k = 200 N/m, biên độ A = 0,1 m. Cơ năng cực đại là:",["2 J","1 J","10 J","0,5 J"],1,"W = ½kA² = ½·200·0,01 = 1 J."],
-[1,"Vật dao động điều hòa x = 4cos(2πt) cm có chu kì là:",["0,5 s","1 s","2 s","π s"],1,"T = 2π/ω = 1 s."],
-[1,"Máy biến áp lí tưởng có N1 = 100 vòng, N2 = 200 vòng, U1 = 50 V. Điện áp hai đầu cuộn thứ cấp là:",["25 V","50 V","100 V","200 V"],2,"U2 = U1·N2/N1 = 100 V."],
-[2,"Độ cao h(t) = −t² + 6t + 5 (m). Độ cao cực đại đạt được là:",["11 m","14 m","16 m","9 m"],1,"Cực đại tại t = 3: h = 14 m."],
-[2,"Giá trị cực tiểu của hàm số y = x³ − 3x + 2 là:",["4","0","−1","1"],1,"y' = 0 tại x = 1 (cực tiểu): y = 0."],
-[2,"Giá trị của log₂8 là:",["2","3","4","8"],1,"2³ = 8."],
-[3,"Mạch đơn ADN có trình tự 5'-A-T-G-X-3' thì mạch bổ sung là:",["3'-T-A-X-G-5'","3'-U-A-X-G-5'","5'-T-A-X-G-3'","3'-G-X-T-A-5'"],0,"A–T, G–X và hai mạch ngược chiều."],
-[3,"Phép lai AaBb × AaBb (phân li độc lập) cho đời con kiểu gen aabb với tỉ lệ:",["1/4","1/8","1/16","9/16"],2,"1/4 aa × 1/4 bb = 1/16."],
-[3,"Bộ nhiễm sắc thể lưỡng bội (2n) của người có bao nhiêu NST?",["23","44","46","48"],2,"Người có 2n = 46."],
-[3,"Đơn vị tiến hóa cơ sở theo thuyết tiến hóa hiện đại là:",["Cá thể","Quần thể","Loài","Quần xã"],1,"Quần thể là đơn vị tiến hóa cơ sở."],
-[4,"Tích phân I = ∫ từ 0 đến 2 của 3x² dx bằng:",["6","8","12","4"],1,"[x³] từ 0 đến 2 = 8."],
-[4,"Mũi tên Nỏ Thần có v(t) = 2t + 4 (m/s). Quãng đường trong 3 giây đầu là:",["15 m","21 m","18 m","10 m"],1,"s = t² + 4t = 9 + 12 = 21 m."]];
-const LP=[[0],[1],[2],[3],[1,2,4]];
+{t:'mc',s:0,q:"Đồng thau (dùng làm đồ dùng, binh khí cổ) là hợp kim của đồng (\\(\\ce{Cu}\\)) với kim loại nào sau đây?",o:["Kẽm (\\(\\ce{Zn}\\))","Nhôm (\\(\\ce{Al}\\))","Sắt (\\(\\ce{Fe}\\))","Bạc (\\(\\ce{Ag}\\))"],a:0,e:"Đồng thau là hợp kim \\(\\ce{Cu}\\)–\\(\\ce{Zn}\\)."},
+{t:'mc',s:0,q:"Để bảo vệ chi tiết bằng sắt khỏi ăn mòn điện hóa trong môi trường ẩm, người ta gắn vào nó lá kim loại nào?",o:["Đồng (\\(\\ce{Cu}\\))","Kẽm (\\(\\ce{Zn}\\))","Bạc (\\(\\ce{Ag}\\))","Chì (\\(\\ce{Pb}\\))"],a:1,e:"\\(\\ce{Zn}\\) hoạt động hơn \\(\\ce{Fe}\\) nên bị ăn mòn thay (bảo vệ điện hóa)."},
+{t:'mc',s:0,q:"Glucozơ (\\(\\ce{C6H12O6}\\)) thuộc loại cacbohiđrat nào?",o:["Monosaccarit","Đisaccarit","Polisaccarit","Lipit"],a:0,e:"Glucozơ là monosaccarit."},
+{t:'mc',s:0,q:"Phản ứng thủy phân este trong dung dịch \\(\\ce{NaOH}\\), đun nóng, gọi là phản ứng:",o:["Este hóa","Xà phòng hóa","Trùng ngưng","Hiđro hóa"],a:1,e:"Tạo muối cacboxylat và ancol."},
+{t:'tf',s:1,q:"Một vật dao động điều hòa theo phương trình \\(x = 4\\cos(2\\pi t)\\ \\text{cm}\\) (\\(t\\) tính bằng giây). Xét các nhận định sau:",i:[["Biên độ dao động của vật là \\(4\\ \\text{cm}\\).",1,"\\(A = 4\\ \\text{cm}\\)."],["Chu kì dao động của vật là \\(2\\ \\text{s}\\).",0,"\\(T = \\dfrac{2\\pi}{\\omega} = \\dfrac{2\\pi}{2\\pi} = 1\\ \\text{s}\\)."],["Tần số dao động của vật là \\(1\\ \\text{Hz}\\).",1,"\\(f = \\dfrac{1}{T} = 1\\ \\text{Hz}\\)."],["Tại thời điểm \\(t = 0\\), vật ở vị trí cân bằng.",0,"\\(x(0) = 4\\cos 0 = 4\\ \\text{cm}\\) nên vật đang ở biên dương."]]},
+{t:'tf',s:1,q:"Con lắc lò xo nằm ngang có \\(k = 200\\ \\text{N/m}\\) dao động điều hòa với biên độ \\(A = 0{,}1\\ \\text{m}\\) (bỏ qua ma sát). Xét các nhận định sau:",i:[["Cơ năng của con lắc bằng \\(1\\ \\text{J}\\).",1,"\\(W = \\dfrac{1}{2}kA^2 = \\dfrac{1}{2}\\cdot 200\\cdot 0{,}1^2 = 1\\ \\text{J}\\)."],["Khi vật ở vị trí biên, động năng của con lắc cực đại.",0,"Ở biên \\(v = 0\\) nên động năng bằng 0, thế năng cực đại."],["Khi vật đi qua vị trí cân bằng, thế năng đàn hồi bằng 0.",1,"Tại vị trí cân bằng \\(x = 0\\) nên \\(W_t = \\dfrac{1}{2}kx^2 = 0\\)."],["Cơ năng của con lắc giảm dần theo thời gian.",0,"Bỏ qua ma sát nên cơ năng được bảo toàn."]]},
+{t:'tf',s:1,q:"Một máy biến áp lí tưởng có \\(N_1 = 100\\) vòng, \\(N_2 = 200\\) vòng, điện áp hiệu dụng ở cuộn sơ cấp \\(U_1 = 50\\ \\text{V}\\). Xét các nhận định sau:",i:[["Đây là máy tăng áp.",1,"\\(N_2 > N_1\\) nên điện áp thứ cấp lớn hơn sơ cấp."],["Điện áp hiệu dụng ở cuộn thứ cấp là \\(100\\ \\text{V}\\).",1,"\\(U_2 = U_1\\cdot\\dfrac{N_2}{N_1} = 50\\cdot\\dfrac{200}{100} = 100\\ \\text{V}\\)."],["Máy biến áp làm thay đổi tần số của dòng điện xoay chiều.",0,"Máy biến áp không làm thay đổi tần số."],["Công suất ở cuộn thứ cấp lớn hơn công suất ở cuộn sơ cấp.",0,"Máy lí tưởng không hao phí nên hai công suất bằng nhau."]]},
+{t:'tf',s:2,q:"Cho hàm số \\(y = x^3 - 3x + 2\\). Xét các nhận định sau:",i:[["Đạo hàm của hàm số là \\(y' = 3x^2 - 3\\).",1,"\\((x^3)' = 3x^2,\\ (-3x)' = -3\\)."],["Hàm số đồng biến trên khoảng \\((-1;\\,1)\\).",0,"Trên \\((-1;\\,1)\\) có \\(y' < 0\\) nên hàm số nghịch biến."],["Hàm số đạt cực tiểu tại \\(x = 1\\).",1,"\\(y'\\) đổi dấu từ âm sang dương tại \\(x = 1\\) (\\(y'' = 6x > 0\\))."],["Giá trị cực đại của hàm số bằng 0.",0,"Giá trị cực đại là \\(y(-1) = 4\\); giá trị cực tiểu mới bằng 0."]]},
+{t:'tf',s:2,q:"Xét các nhận định về nguyên hàm và tích phân sau:",i:[["\\(\\int_0^2 3x^2\\,dx = 8\\).",1,"\\(\\left[x^3\\right]_0^2 = 8\\)."],["Một nguyên hàm của hàm số \\(f(x) = \\cos x\\) là \\(F(x) = \\sin x\\).",1,"\\((\\sin x)' = \\cos x\\)."],["\\(\\int \\dfrac{1}{x}\\,dx = \\ln x + C\\) với mọi \\(x \\neq 0\\).",0,"Đúng phải là \\(\\ln|x| + C\\); \\(\\ln x\\) chỉ xác định khi \\(x > 0\\)."],["\\(\\int_0^1 2x\\,dx = 1\\).",1,"\\(\\left[x^2\\right]_0^1 = 1\\)."]]},
+{t:'tf',s:2,q:"Xét các nhận định về lôgarit và hàm số mũ sau:",i:[["\\(\\log_2 8 = 3\\)",1,"\\(2^3 = 8\\)"],["\\(\\log_2(a + b) = \\log_2 a + \\log_2 b\\) với mọi \\(a, b > 0\\).",0,"Đẳng thức đúng là \\(\\log_2(ab) = \\log_2 a + \\log_2 b\\)."],["Hàm số \\(y = \\log_2 x\\) đồng biến trên khoảng \\((0;\\,+\\infty)\\).",1,"Cơ số \\(2 > 1\\) nên hàm số đồng biến."],["Phương trình \\(2^x = 8\\) có nghiệm \\(x = 4\\).",0,"\\(2^x = 2^3\\) nên \\(x = 3\\)."]]},
+{t:'sa',s:3,q:"Bộ nhiễm sắc thể lưỡng bội (\\(2n\\)) của người có bao nhiêu nhiễm sắc thể? (chỉ nhập số)",a:["46"],e:"Người có \\(2n = 46\\) (23 cặp NST)."},
+{t:'sa',s:3,q:"Phép lai \\(\\text{AaBb} \\times \\text{AaBb}\\), các gen phân li độc lập. Tỉ lệ kiểu gen \\(\\text{aabb}\\) ở đời con là bao nhiêu? (nhập dạng phân số, ví dụ 1/4)",a:["1/16"],e:"\\(\\text{aa}\\) chiếm \\(\\dfrac{1}{4}\\), \\(\\text{bb}\\) chiếm \\(\\dfrac{1}{4}\\) nên \\(\\text{aabb} = \\dfrac{1}{4}\\times\\dfrac{1}{4} = \\dfrac{1}{16}\\)."},
+{t:'sa',s:3,q:"Theo thuyết tiến hóa hiện đại, đơn vị tiến hóa cơ sở là gì?",a:["quần thể"],e:"Quần thể là đơn vị tiến hóa cơ sở."},
+{t:'sa',s:3,q:"Mạch gốc của một gen có trình tự 3'-TAXGGT-5'. Hãy viết trình tự mARN (chiều 5'→3', viết liền, không dấu cách) được phiên mã từ mạch này.",a:["AUGXXA","AUGCCA"],e:"Phiên mã theo nguyên tắc bổ sung A–U, T–A, G–X, X–G nên mARN là 5'-AUGXXA-3'."},
+{t:'sa',s:3,q:"Một gen dài \\(5100\\ \\text{Å}\\) thì có tổng số bao nhiêu nuclêôtit? (chỉ nhập số)",a:["3000"],e:"\\(N = \\dfrac{2L}{3{,}4} = \\dfrac{2\\cdot 5100}{3{,}4} = 3000\\) nuclêôtit."},
+{t:'sa',s:3,q:"Quá trình dịch mã (tổng hợp prôtêin) diễn ra ở bào quan nào?",a:["ribôxôm","ribosom","ribosome"],e:"Dịch mã diễn ra ở ribôxôm."},
+{t:'sa',s:3,q:"Bộ ba mở đầu trên mARN (mã hóa axit amin mở đầu) là gì? (viết 3 chữ cái)",a:["AUG"],e:"Bộ ba mở đầu là 5'-AUG-3'."},
+{t:'sa',s:4,q:"Tính tích phân \\(\\int_0^2 3x^2\\,dx\\). (chỉ nhập số)",a:["8"],e:"Nguyên hàm là \\(x^3\\); thay cận: \\(2^3 - 0^3 = 8\\)."},
+{t:'sa',s:4,q:"Mũi tên Nỏ Thần có vận tốc \\(v(t) = 2t + 4\\ (\\text{m/s})\\). Quãng đường đi được trong 3 giây đầu là bao nhiêu mét? (chỉ nhập số)",a:["21"],e:"\\(s = \\int_0^3 (2t + 4)\\,dt = t^2 + 4t = 9 + 12 = 21\\ \\text{m}\\)."},
+{t:'sa',s:4,q:"Con lắc lò xo có \\(k = 200\\ \\text{N/m}\\), biên độ \\(A = 0{,}1\\ \\text{m}\\). Cơ năng của con lắc là bao nhiêu jun? (chỉ nhập số)",a:["1"],e:"\\(W = \\dfrac{1}{2}kA^2 = \\dfrac{1}{2}\\cdot 200\\cdot 0{,}01 = 1\\ \\text{J}\\)."},
+{t:'sa',s:4,q:"Độ cao của vật \\(h(t) = -t^2 + 6t + 5\\) (m). Độ cao cực đại bằng bao nhiêu mét? (chỉ nhập số)",a:["14"],e:"Cực đại tại \\(t = 3\\): \\(h = -9 + 18 + 5 = 14\\ \\text{m}\\)."},
+{t:'sa',s:4,q:"Máy biến áp lí tưởng có \\(N_1 = 100\\) vòng, \\(N_2 = 200\\) vòng, \\(U_1 = 50\\ \\text{V}\\). Điện áp hiệu dụng ở cuộn thứ cấp là bao nhiêu vôn? (chỉ nhập số)",a:["100"],e:"\\(U_2 = U_1\\cdot\\dfrac{N_2}{N_1} = 50\\cdot\\dfrac{200}{100} = 100\\ \\text{V}\\)."},
+{t:'sa',s:4,q:"Tính giá trị của \\(\\log_2 8\\). (chỉ nhập số)",a:["3"],e:"\\(2^3 = 8\\) nên \\(\\log_2 8 = 3\\)."},
+{t:'sa',s:4,q:"Vật dao động điều hòa theo phương trình \\(x = 4\\cos(2\\pi t)\\ \\text{cm}\\). Chu kì dao động là bao nhiêu giây? (chỉ nhập số)",a:["1"],e:"\\(T = \\dfrac{2\\pi}{\\omega} = \\dfrac{2\\pi}{2\\pi} = 1\\ \\text{s}\\)."},
+{t:'sa',s:4,q:"Tìm giá trị cực tiểu của hàm số \\(y = x^3 - 3x + 2\\). (chỉ nhập số)",a:["0"],e:"\\(y' = 3x^2 - 3 = 0\\) cho \\(x = 1\\) (cực tiểu): \\(y(1) = 1 - 3 + 2 = 0\\)."}];
 // ===== 5 MÀN CHƠI (bản đồ rộng) =====
 const LV=[
 {n:'Rừng Trúc Cổ Loa',s:['#0b2e22','#2a7a4f'],gr:'#1a3b2e',tp:'#3d9a5f',W:3000,ne:6,hp:50,at:10,sp:1.4,pit:[1000,1900],pl:[620,1350,2100,2550],rn:'Giáp Đồng Đông Sơn',msg:'Phong ấn Hóa học 12 đã mở! [Giáp Đồng Đông Sơn]: +100 HP tối đa và giảm sát thương nhận vào.'},
 {n:'Đầm Lầy Sương Mù',s:['#141c2a','#3a4d68'],gr:'#2c3a4f',tp:'#4d6a8a',W:3200,ne:7,hp:90,at:16,sp:1.9,pit:[900,1700,2500],pl:[500,1200,1950,2700],rn:'Nỏ Thần Liên Châu',msg:'Phong ấn Vật lý 12 đã giải! [Nỏ Thần Liên Châu]: bắn 3 mũi tên cùng lúc, tốc độ bắn nhanh hơn.'},
 {n:'Núi Đá Sóc Sơn',s:['#2b1d16','#8a5a3a'],gr:'#473024',tp:'#a0714d',W:3400,ne:8,hp:150,at:22,sp:2.3,pit:[800,1500,2200,2900],pl:[450,1150,1850,2550,3100],rn:'Ngựa Sắt Phù Đổng',msg:'Phong ấn Toán học 12 hoàn tất! [Ngựa Sắt Phù Đổng]: chạy nhanh, nhảy cao và phun lửa thiêu kẻ địch ở gần.'},
 {n:'Hầm Mộ Lạc Việt',s:['#150d22','#4a2d7a'],gr:'#33214d',tp:'#6b4aa0',W:3600,ne:9,hp:220,at:28,sp:2.7,pit:[900,1600,2300,3000],pl:[500,1250,1950,2650,3250],rn:'Ngọc Trai Tinh Khiết',msg:'Phong ấn Sinh học 12 khai mở! [Ngọc Trai Tinh Khiết]: +80 HP, +30 sát thương, hồi máu khi hạ yêu ma.'},
-{n:'Đỉnh Tháp Hắc Ám',s:['#0a0510','#3a1450'],gr:'#26132b',tp:'#5a2a6a',W:2800,ne:2,hp:150,at:30,sp:2.2,pit:[800,1300],pl:[500,1000,1500],boss:1,rn:'Chìa Khóa Vạn Năng',msg:'Mật mã cuối cùng đã giải! [Chìa Khóa Vạn Năng] mở lồng giam Mị Nương!'}];
+{n:'Đỉnh Tháp Hắc Ám',s:['#0a0510','#3a1450'],gr:'#26132b',tp:'#5a2a6a',W:2800,ne:2,hp:150,at:30,sp:2.2,pit:[800,1300],pl:[500,1000,1500],boss:1,rn:'Chìa Khóa Vạn Năng',msg:'Mật mã cuối cùng đã giải! [Chìa Khóa Vạn Năng] mở lồng giam Mị Châu!'}];
 // ===== TRẠNG THÁI =====
 let st='MENU',lvl=0,L=LV[0],P,en=[],ar=[],bp=[],fr=[],pt=[],pl=[],chest=null,B=null,cam=0,fc=0,lt=0,lh=0,fade=0,banner=null,msg=null,shake=0,used=new Set(),cq,wt=0,wa=0,wd=0,cage=0,dirty=0,snap={};
 const inp={left:0,right:0,jump:0,shoot:0},pit=x=>L.pit.some(a=>x>a&&x<a+110),ov2=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 const ov=h=>{const o=$('ov');o.className='';o.innerHTML='<div class="cd">'+h+'</div>';o.style.display='flex';o.scrollTop=0};
-function hud(){const p=P||{hp:100,maxHp:100,atk:25};$('hl').textContent=P?'Màn '+(lvl+1)+'/5: '+L.n:'Trọng Thủy Giải Cứu Mị Nương';$('hb').style.width=cl(p.hp/p.maxHp*100,0,100)+'%';$('ht').textContent=Math.max(0,p.hp|0)+'/'+p.maxHp;$('ha').textContent='🏹 '+p.atk;$('hs').textContent='⭐ '+S.score;$('hm').textContent='⏱ '+fmt(S.time);
+function hud(){const p=P||{hp:100,maxHp:100,atk:25};$('hl').textContent=P?'Màn '+(lvl+1)+'/5: '+L.n:'Trọng Thủy Giải Cứu Mị Châu';$('hb').style.width=cl(p.hp/p.maxHp*100,0,100)+'%';$('ht').textContent=Math.max(0,p.hp|0)+'/'+p.maxHp;$('ha').textContent='🏹 '+p.atk;$('hs').textContent='⭐ '+S.score;$('hm').textContent='⏱ '+fmt(S.time);
 rel2();$('mb').textContent=S.mute?'🔇':'🔊';$('vol').value=S.vol}
-function menu(){st='MENU';music(-1);hud();ov('<h2>Trọng Thủy Giải Cứu Mị Nương</h2><p>Thành Cổ Loa thất thủ, Mị Nương bị Ma Vương giam trên Đỉnh Tháp Hắc Ám. Mang theo nỗi ân hận và quyết tâm chuộc lỗi, Trọng Thủy vượt 5 vùng đất, giải mã các phong ấn tri thức Hóa – Lý – Toán – Sinh lớp 12 để thức tỉnh bảo vật, đánh bại Ma Vương và giải cứu Mị Nương!</p>'+((S.score>0||S.lv>0)&&S.done<5?'<button class="b" onclick="cont()">▶ Tiếp tục (Màn '+(S.lv+1)+')</button>':'')+'<button class="b s" onclick="newg()">🆕 Chơi mới</button><button class="b r" onclick="clr()">🗑 Xóa dữ liệu trò chơi</button><p style="font-size:12px">A/D hoặc ←→: di chuyển · W/Space/↑: nhảy · J/Enter: bắn cung</p>')}
+function menu(){st='MENU';music(-1);hud();ov('<h2>Trọng Thủy Giải Cứu Mị Châu</h2><p>Thành Cổ Loa thất thủ, Mị Châu bị Ma Vương giam trên Đỉnh Tháp Hắc Ám. Mang theo nỗi ân hận và quyết tâm chuộc lỗi, Trọng Thủy vượt 5 vùng đất, giải mã các phong ấn tri thức Hóa – Lý – Toán – Sinh lớp 12 để thức tỉnh bảo vật, đánh bại Ma Vương và giải cứu Mị Châu!</p>'+((S.score>0||S.lv>0)&&S.done<5?'<button class="b" onclick="cont()">▶ Tiếp tục (Màn '+(S.lv+1)+')</button>':'')+'<button class="b s" onclick="newg()">🆕 Chơi mới</button><button class="b r" onclick="clr()">🗑 Xóa dữ liệu trò chơi</button><p style="font-size:12px">A/D hoặc ←→: di chuyển · W/Space/↑: nhảy · J/Enter: bắn cung</p>')}
 function cont(){au();S=Object.assign(fresh(),load()||S);used=new Set();if(S.chest>=0)showChest(S.chest);else startLv(S.lv)}
 function restart(){S=Object.assign(fresh(),{vol:S.vol,mute:S.mute});used=new Set();save();au();startLv(0)}
 function ask(t,yes){ov('<h2>'+t+'</h2><button class="b" id="ay">✔ Đồng ý</button><button class="b s" onclick="menu()">✖ Hủy</button>');$('ay').onclick=yes}
@@ -98,7 +140,7 @@ function retry(){Object.assign(S,snap);startLv(lvl)}
 function burst(x,y,c,n){for(let k=0;k<n&&pt.length<260;k++)pt.push({x,y,vx:(rd()-.5)*7,vy:(rd()-.5)*7-1,l:30+rd()*20,c,gv:.12})}
 function shoot(){const p=P;if(p.cd>0||st!='PLAY')return;const c=S.rel[1];p.cd=c?16:24;p.sh=12;sfx('shoot');const x=p.f>0?p.x+p.w:p.x-16,y=p.y+22,v=c?11:8.5;(c?[-1.6,0,1.6]:[0]).forEach(vy=>ar.push({x,y,vx:p.f*v,vy,d:p.atk,dv:c}))}
 function hurt(d){if(P.inv>0||st!='PLAY')return;P.hp-=d;P.inv=60;S.hits++;lh++;sfx('hurt');burst(P.x+17,P.y+26,'#f85149',8);hud();if(P.hp<=0)die()}
-function die(){st='OVER';music(-1);ov('<h2>💀 Trọng Thủy đã kiệt sức!</h2><p>Binh đoàn bóng tối quá đông đảo... Hãy giữ vững ý chí giải cứu Mị Nương và thử lại màn này!</p><button class="b" onclick="retry()">Thử lại màn này</button><button class="b s" onclick="menu()">Về màn hình chính</button>')}
+function die(){st='OVER';music(-1);ov('<h2>💀 Trọng Thủy đã kiệt sức!</h2><p>Binh đoàn bóng tối quá đông đảo... Hãy giữ vững ý chí giải cứu Mị Châu và thử lại màn này!</p><button class="b" onclick="retry()">Thử lại màn này</button><button class="b s" onclick="menu()">Về màn hình chính</button>')}
 function dmg(e,d,q){e.hp-=d;e.fl=6;if(!q)sfx('hit');if(e.hp<=0&&!e.dead)kill(e)}
 function kill(e){e.dead=1;dirty=1;S.kills++;if(e.boss){S.score+=500;sfx('bdie');shake=40;en.forEach(m=>{m.dead=1;burst(m.x+18,m.y+26,'#c678ff',10)});bp=[];msg=['Ma Vương bị đánh bại! Hãy đến rương phong ấn!',200]}else{S.score+=20;sfx('kill');burst(e.x+e.w/2,e.y+e.h/2,'#ff6b6b',14);if(S.rel[3])P.hp=Math.min(P.maxHp,P.hp+25)}hud()}
 function bossStep(){const b=B;b.t++;if(b.fl>0)b.fl--;
@@ -143,13 +185,37 @@ if(!chest&&!en.length&&(!B||B.gone)&&st=='PLAY'){chest={x:L.boss?L.W-320:L.W-200
 if(chest&&ov2(p,chest))quiz();
 if(st=='PLAY')camU()}
 // ===== CÂU HỎI =====
-function quiz(){st='QUIZ';inp.left=inp.right=inp.jump=inp.shoot=0;sfx('chest');const pool=[];QB.forEach((q,i)=>{if(LP[lvl].includes(q[0]))pool.push(i)});let av=pool.filter(i=>!used.has(i));if(!av.length){pool.forEach(i=>used.delete(i));av=pool}
-const qi=av[(rd()*av.length)|0];used.add(qi);const q=QB[qi],o=q[2].map((t,i)=>({t,c:i==q[3]}));o.sort(()=>rd()-.5);cq={q,o};
-ov('<span class="tag">'+SUB[q[0]]+'</span><h2>Giải mã phong ấn: '+L.rn+'</h2><div class="q">'+q[1]+'</div>'+o.map((x,i)=>'<button class="op" onclick="ans('+i+')">'+'ABCD'[i]+'. '+x.t+'</button>').join('')+'<div id="fb"></div>')}
-function ans(i){const bs=document.querySelectorAll('.op'),ci=cq.o.findIndex(x=>x.c);bs.forEach(b=>b.disabled=true);bs[ci].classList.add('ok');
-if(cq.o[i].c){S.ok++;S.score+=100;sfx('ok');$('fb').textContent='✅ Chính xác! +100 điểm. '+cq.q[4];setTimeout(got,1900)}
-else{bs[i].classList.add('no');S.bad++;S.score=Math.max(0,S.score-25);P.hp=Math.max(1,P.hp-10);sfx('bad');$('fb').textContent='❌ Sai rồi! −25 điểm, −10 HP. Đáp án đúng: '+'ABCD'[ci]+'. '+cq.q[4]+' Đang đổi câu hỏi khác...';setTimeout(quiz,2400)}
-save();hud()}
+let qs,lock=0;
+const nt=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase().replace(/\s+/g,''),
+nm=x=>{x=x.replace(/\s/g,'').replace(',','.');if(/^[+-]?\d+(\.\d+)?$/.test(x))return+x;const m=x.match(/^([+-]?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);return m&&+m[2]?+m[1]/+m[2]:NaN};
+const okSA=(v,acc)=>{const n=nm(v),t=nt(v);return acc.some(a=>{const an=nm(a);return isNaN(an)?nt(a)==t:(!isNaN(n)&&Math.abs(n-an)<1e-9)})};
+// Vẽ công thức MathJax cho vùng nội dung vừa tạo bằng JS; nếu thư viện chưa tải xong thì thử lại, tải lỗi thì để nguyên mã TeX (không làm hỏng game)
+function tex(el,clr){let n=0;const go=()=>{const X=window.MathJax;if(X&&X.typesetPromise){try{if(clr&&X.typesetClear)X.typesetClear([el]);X.typesetPromise([el]).catch(e=>console.warn('MathJax:',e))}catch(e){console.warn('MathJax:',e)}}else if(n++<60)setTimeout(go,250)};go()}
+function quiz(){st='QUIZ';inp.left=inp.right=inp.jump=inp.shoot=0;sfx('chest');lock=0;
+const pool=QB.filter(q=>q.t==QT[lvl]&&LP[lvl].includes(q.s));let av=pool.filter(q=>!used.has(q));if(!av.length){pool.forEach(q=>used.delete(q));av=pool}
+const q=av[(rd()*av.length)|0];used.add(q);qs={q,v:[null,null,null,null],o:null,last:''};let b='';
+if(q.t=='mc'){qs.o=q.o.map((t,i)=>({t,c:i==q.a}));qs.o.sort(()=>rd()-.5);b=qs.o.map((x,i)=>'<button class="op" onclick="ans('+i+')">'+'ABCD'[i]+'. '+x.t+'</button>').join('')}
+else if(q.t=='tf')b=q.i.map((x,i)=>'<div class="tfr" id="r'+i+'"><b>'+'abcd'[i]+')</b> '+x[0]+'<div><button class="tfb" id="t'+i+'1" onclick="tfp('+i+',1)">ĐÚNG</button><button class="tfb" id="t'+i+'0" onclick="tfp('+i+',0)">SAI</button></div><div class="ex" id="x'+i+'"></div></div>').join('')+'<button class="b" id="sub" disabled onclick="subTF()">Nộp bài (0/4)</button>';
+else b='<input id="sa" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Nhập câu trả lời..." onkeydown="if(event.key==\'Enter\')subSA()"><button class="b" id="sub" onclick="subSA()">Gửi câu trả lời</button>';
+ov('<span class="tag">'+TL[q.t]+'</span> <span class="tag" style="background:#8957e5">'+SUB[q.s]+'</span><h2>Màn '+(lvl+1)+': '+L.n+'</h2><div class="q">'+q.q+'</div>'+b+'<div id="fb"></div><div id="nx"></div>');
+tex($('ov'),1);if(q.t=='sa')$('sa').focus()}
+// ===== CHẤM CÂU TRẢ LỜI: sai thì KHÔNG lộ đáp án và được thử lại; đúng mới hiện đáp án + lời giải rồi tự sang bước kế =====
+const AUTO=2000;   // ms chờ sau khi trả lời đúng (1000–2000)
+function fbk(h,c){const f=$('fb');f.className='';void f.offsetWidth;f.className=c;f.innerHTML=h}
+function wrong(){S.bad++;S.score=Math.max(0,S.score-25);P.hp=Math.max(1,P.hp-10);sfx('bad');fbk('<b>❌ Chưa chính xác! Hãy thử lại.</b>','bad');save();hud()}
+function right(h){lock=1;S.ok++;S.score+=100;sfx('ok');setTimeout(()=>sfx('win'),180);fbk('<b>✅ Chính xác! Bạn đã trả lời đúng.</b><br>'+h,'good');const c=$('ov').firstChild;if(c)c.classList.add('glow');tex($('ov'));save();hud();setTimeout(got,AUTO)}
+function tfp(i,v){if(lock)return;qs.v[i]=v;$('t'+i+'1').classList.toggle('sel',v==1);$('t'+i+'0').classList.toggle('sel',v==0);const n=qs.v.filter(x=>x!==null).length,b=$('sub');b.disabled=n<4||qs.v.join()==qs.last;b.textContent='Nộp bài ('+n+'/4)'}
+function subTF(){const q=qs.q;if(lock||qs.v.includes(null))return;
+if(q.i.some((x,i)=>qs.v[i]!=x[1])){qs.last=qs.v.join();$('sub').disabled=true;wrong();return}   // không nói ý nào sai hay sai mấy ý
+q.i.forEach((x,i)=>{$('r'+i).classList.add('ok');$('t'+i+'1').disabled=$('t'+i+'0').disabled=true;$('x'+i).innerHTML='Đáp án: <b>'+(x[1]?'ĐÚNG':'SAI')+'</b>. '+x[2]});
+$('sub').style.display='none';right('')}
+function subSA(){if(lock)return;const q=qs.q,v=$('sa').value;if(!v.trim()){$('fb').className='';$('fb').textContent='⚠ Hãy nhập câu trả lời trước khi gửi.';$('sa').focus();return}
+if(okSA(v,q.a)){$('sa').disabled=true;$('sub').style.display='none';right('Đáp án: <b>'+q.a[0]+'</b><br>'+q.e);return}
+const k=nt(v);if(k==qs.last){fbk('<b>❌ Chưa chính xác! Hãy thử lại.</b>','bad');return}   // gửi lại đúng đáp án sai cũ thì không trừ thêm
+qs.last=k;wrong();$('sa').select()}
+function ans(i){if(lock)return;const q=qs.q,o=qs.o[i],bs=document.querySelectorAll('.op');
+if(o.c){bs.forEach(b=>b.disabled=true);bs[i].classList.add('ok');right('Đáp án đúng: <b>'+'ABCD'[i]+'. '+o.t+'</b><br>'+q.e)}
+else{bs[i].classList.add('no');bs[i].disabled=true;wrong()}}
 function got(){const b=(lt<90?80:0)+(lh==0?70:0);S.score+=200+b;if(lvl<4)S.done=Math.max(S.done,lvl+1);S.chest=lvl;S.lv=Math.min(lvl+1,4);save();
 lvs='⏱ '+(lt|0)+'s · 💥 '+lh+' lần trúng · ✅ '+S.ok+' · ❌ '+S.bad+' · ⚔️ '+S.kills+' · ⭐ '+S.score+' (+'+(200+b)+' hoàn thành màn)';showChest(lvl)}
 function winStep(){wt++;P.t++;cage=cl(wt/70,0,1);const mx=L.W-170;P.y=G-P.h;
@@ -159,7 +225,7 @@ else if(wt>70){P.st='win';if(!wa)wa=wt;if(wt%10==0){burst(P.x-200+rd()*400,40+rd
 camU()}
 const ach=()=>[[S.bad==0,'🎯 Học bá: không trả lời sai'],[S.hits<=15,'🛡️ Thân pháp: ≤ 15 lần trúng đòn'],[S.kills>=30,'⚔️ Diệt yêu: hạ 30+ quái'],[S.time<900,'⚡ Thần tốc: dưới 15 phút'],[1,'🏺 Thu thập đủ 6 bảo vật']].filter(a=>a[0]).map(a=>a[1]);
 function finish(){S.score+=1000;S.done=5;save();hud();const rk=S.score>=4000?['💎 KIM CƯƠNG','#7fe0ff']:S.score>=3400?['🥇 VÀNG','#ffd33d']:S.score>=2800?['🥈 BẠC','#c9d1d9']:['🥉 ĐỒNG','#cd7f32'];
-ov('<h2 style="font-size:20px">🎉 CHÚC MỪNG! BẠN ĐÃ GIẢI CỨU MỊ NƯƠNG!</h2><p>Trọng Thủy và Mị Nương đoàn tụ, mang lại bình yên cho đất Việt!</p><div style="font-size:24px;font-weight:800;color:'+rk[1]+'">Xếp hạng: '+rk[0]+'</div><div class="g"><div>⭐ Điểm: '+S.score+'</div><div>⏱ Thời gian: '+fmt(S.time)+'</div><div>✅ Đúng: '+S.ok+'</div><div>❌ Sai: '+S.bad+'</div><div>⚔️ Quái hạ: '+S.kills+'</div><div>🏺 Bảo vật: 6/6</div><div>💢 Trúng đòn: '+S.hits+'</div><div>🏁 Màn: 5/5</div></div><div id="ac" class="q" style="display:none">'+ach().join('<br>')+'</div><button class="b" onclick="restart()">🔁 Chơi lại</button><button class="b s" onclick="$(\'ac\').style.display=\'block\'">🏅 Xem thành tích</button><button class="b r" onclick="menu()">🏠 Về màn hình chính</button>')}
+ov('<h2 style="font-size:20px">🎉 CHÚC MỪNG! BẠN ĐÃ GIẢI CỨU MỊ CHÂU!</h2><p>Trọng Thủy và Mị Châu đoàn tụ, mang lại bình yên cho đất Việt!</p><div style="font-size:24px;font-weight:800;color:'+rk[1]+'">Xếp hạng: '+rk[0]+'</div><div class="g"><div>⭐ Điểm: '+S.score+'</div><div>⏱ Thời gian: '+fmt(S.time)+'</div><div>✅ Đúng: '+S.ok+'</div><div>❌ Sai: '+S.bad+'</div><div>⚔️ Quái hạ: '+S.kills+'</div><div>🏺 Bảo vật: 6/6</div><div>💢 Trúng đòn: '+S.hits+'</div><div>🏁 Màn: 5/5</div></div><div id="ac" class="q" style="display:none">'+ach().join('<br>')+'</div><button class="b" onclick="restart()">🔁 Chơi lại</button><button class="b s" onclick="$(\'ac\').style.display=\'block\'">🏅 Xem thành tích</button><button class="b r" onclick="menu()">🏠 Về màn hình chính</button>')}
 // ===== VẼ =====
 function bgd(){const o=cam*.35;g.globalAlpha=.55;for(let i=0;i<14;i++){const bx=((i*210-o)%2940+2940)%2940-150;
 if(lvl==0){g.fillStyle='#14502f';g.fillRect(bx,40,12,G-40);g.fillStyle='#1f7a45';for(let j=0;j<6;j++)g.fillRect(bx-1,80+j*50,14,4)}
@@ -170,14 +236,8 @@ else{g.fillStyle='#1e0c2a';g.fillRect(bx,G-200-(i%4)*40,34,300);if(fc%160<4&&i==
 g.globalAlpha=1;if(lvl==1||lvl==3){g.fillStyle='rgba(180,200,230,.07)';for(let k=0;k<4;k++)g.fillRect(0,G-110+k*25+Math.sin(fc/60+k)*8,W,30)}}
 function dP(){const p=P,t=p.t,a=p.st,hs=S.rel[2],sw=a=='run'?Math.sin(t*.32)*8:0,bb=a=='idle'?Math.sin(t*.09)*1.5:0;
 g.save();g.translate(p.x+p.w/2,p.y+p.h);g.scale(p.f,1);if(p.inv>0&&a!='hurt'&&p.inv%8<4)g.globalAlpha=.4;if(a=='hurt')g.rotate(-.18);
-if(hs){g.fillStyle='#4b5260';g.beginPath();g.ellipse(0,-20,30,12,0,0,7);g.fill();g.fillRect(24,-40,12,18);for(let k=0;k<4;k++){const o=a=='run'?Math.sin(t*.4+k*1.6)*7:0;g.fillRect(-22+k*14+o,-12,5,12)}g.fillStyle='#f0883e';g.fillRect(34,-36,6,5);g.translate(0,-14)}
-const ai=a=='jump'?-5:a=='fall'?4:sw;g.fillStyle='#3b2412';g.fillRect(-10+ai,-16+bb,8,16-bb);g.fillRect(2-ai,-16+bb,8,16-bb);
-g.fillStyle=S.rel[0]?'#c9921e':'#b83a2e';g.fillRect(-12,-38+bb,24,24);g.fillStyle='#3b2412';g.fillRect(-12,-17+bb,24,4);
-g.fillStyle='#f1c27d';g.beginPath();g.arc(1,-46+bb,9,0,7);g.fill();g.fillStyle='#111';g.beginPath();g.arc(0,-48+bb,9.5,Math.PI,0);g.fill();g.fillStyle='#e03a3a';g.fillRect(-9,-50+bb,19,3);g.fillStyle='#111';g.fillRect(5,-47+bb,2,2);
-const up=a=='win',bx=a=='shoot'?24:16;g.strokeStyle='#f1c27d';g.lineWidth=5;g.beginPath();
-if(up){g.moveTo(-10,-34);g.lineTo(-16,-56);g.moveTo(10,-34);g.lineTo(16,-56)}else{g.moveTo(6,-34+bb);g.lineTo(bx,-33+bb)}g.stroke();
-if(!up){g.strokeStyle=S.rel[1]?'#ffd33d':'#a0642a';g.lineWidth=3;g.beginPath();g.arc(bx,-33+bb,15,-1.25,1.25);g.stroke();g.strokeStyle='#ddd';g.lineWidth=1;g.beginPath();g.moveTo(bx+5,-47+bb);g.lineTo(a=='shoot'?bx-14:bx+5,-33+bb);g.lineTo(bx+5,-19+bb);g.stroke();if(a=='shoot'){g.fillStyle='#79c0ff';g.fillRect(bx-14,-34+bb,28,2)}}
-g.restore()}
+if(hs){const hm=a=='run'?'run':a=='win'?'idle':!p.gr?(p.vy<0?'jump':'fall'):p.vx?'run':'idle';drawHorse(g,t,hm,p.vy,st=='WIN'?3:Math.abs(p.vx));g.translate(0,-14)}
+drawHero(g,p,a,hs);g.restore()}
 function dm(e){g.save();g.translate(e.x+e.w/2,e.y+e.h);const s=e.w/36;g.scale(e.f*s,s);const b=Math.sin(e.t*.25)*3,bo=e.boss,c=e.fl>0?'#fff':bo?'#6a2fb5':'#c0312c',d=e.fl>0?'#fff':bo?'#3d1a6e':'#7a1d1a';
 if(bo){g.fillStyle='#1b0b2e';g.beginPath();g.moveTo(-14,-36);g.lineTo(-30,-4+b);g.lineTo(0,0);g.lineTo(30,-4+b);g.lineTo(14,-36);g.fill()}
 g.fillStyle=d;g.fillRect(-11,-12+b/2,8,12-b/2);g.fillRect(3,-12-b/2,8,12+b/2);g.fillStyle=c;g.beginPath();g.ellipse(0,-22,16,16,0,0,7);g.fill();g.beginPath();g.arc(0,-40,11,0,7);g.fill();
@@ -188,13 +248,11 @@ if(b.sk=='slam'){g.fillStyle='rgba(255,40,40,'+(.15+.25*pr)+')';g.beginPath();g.
 else if(b.sk=='shot'){g.fillStyle='rgba(255,180,60,.85)';g.beginPath();g.arc(cx+b.f*30,b.y+30,6+14*pr,0,7);g.fill()}
 else{g.strokeStyle='#c678ff';g.lineWidth=3;g.beginPath();g.arc(cx,b.y+60,30+60*(1-pr),0,7);g.stroke()}
 g.fillStyle='#ff4040';g.font='bold 26px sans-serif';g.textAlign='center';g.fillText('!',cx,b.y-12)}
-function dMN(x,free){g.save();g.translate(x,G);g.fillStyle='#ff79c6';g.beginPath();g.moveTo(-10,-34);g.lineTo(10,-34);g.lineTo(16,0);g.lineTo(-16,0);g.fill();g.fillStyle='#f1c27d';g.beginPath();g.arc(0,-44,9,0,7);g.fill();g.fillStyle='#111';g.beginPath();g.arc(0,-47,10,Math.PI,0);g.fill();g.fillRect(-10,-47,4,28);g.fillStyle='#ffd33d';g.fillRect(-8,-56,16,3);
-if(free){g.strokeStyle='#f1c27d';g.lineWidth=4;g.beginPath();g.moveTo(-9,-32);g.lineTo(-15,-54);g.moveTo(9,-32);g.lineTo(15,-54);g.stroke()}g.restore()}
 function draw(){const gd=L.gd||(L.gd=(()=>{const q=g.createLinearGradient(0,0,0,G);q.addColorStop(0,L.s[0]);q.addColorStop(1,L.s[1]);return q})());g.fillStyle=gd;g.fillRect(0,0,W,H);if(st=='CHEST'){bgd();dChest();return}if(!P)return;
 bgd();const sx=shake>0?(rd()-.5)*shake*.5:0,sy=shake>0?(rd()-.5)*shake*.3:0;g.save();g.translate(-cam+sx,sy);
 let s0=0;const seg=(a,b)=>{g.fillStyle=L.gr;g.fillRect(a,G,b-a,H-G);g.fillStyle=L.tp;g.fillRect(a,G,b-a,8)};for(const a of L.pit){seg(s0,a);s0=a+110}seg(s0,L.W);
 for(const q of pl){g.fillStyle=L.gr;g.fillRect(q.x,q.y,q.w,14);g.fillStyle=L.tp;g.fillRect(q.x,q.y,q.w,5)}
-if(L.boss){const cx=L.W-120;dMN(cx,cage>=1);g.strokeStyle='#8b949e';g.lineWidth=3;g.globalAlpha=1-cage*.8;for(let k=0;k<6;k++){g.beginPath();g.moveTo(cx-35+k*14,G-80-cage*60);g.lineTo(cx-35+k*14,G-cage*60)}g.stroke();g.strokeRect(cx-38,G-84-cage*60,76,6);g.globalAlpha=1;if(cage<1){g.fillStyle='#ffd33d';g.font='bold 12px sans-serif';g.textAlign='center';g.fillText('Mị Nương',cx,G-96)}}
+if(L.boss){const cx=L.W-120;dMC(cx,cage>=1);g.strokeStyle='#8b949e';g.lineWidth=3;g.globalAlpha=1-cage*.8;g.beginPath();for(let k=0;k<6;k++){g.moveTo(cx-35+k*14,G-80-cage*60);g.lineTo(cx-35+k*14,G-cage*60)}g.stroke();g.strokeRect(cx-38,G-84-cage*60,76,6);g.globalAlpha=1;if(cage<1){g.fillStyle='#ffd33d';g.font='bold 12px sans-serif';g.textAlign='center';g.fillText('Mị Châu',cx,G-96)}}
 dTel();if(chest){const c=chest,gl=.5+.5*Math.sin(fc*.08);g.fillStyle='rgba(255,211,61,'+(.15+.2*gl)+')';g.beginPath();g.arc(c.x+24,c.y+20,40,0,7);g.fill();g.fillStyle='#8a5a1c';g.fillRect(c.x,c.y,48,40);g.fillStyle='#d29922';g.fillRect(c.x,c.y,48,12);g.fillRect(c.x+20,c.y+10,8,12);g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(c.x,c.y,48,40);g.fillStyle='#ffd33d';g.font='bold 12px sans-serif';g.textAlign='center';g.fillText('📜 Giải mã',c.x+24,c.y-8)}
 for(const e of en)if(!e.dead){dm(e);g.fillStyle='#21262d';g.fillRect(e.x,e.y-10,e.w,5);g.fillStyle='#3fb950';g.fillRect(e.x,e.y-10,e.w*Math.max(0,e.hp/e.mhp),5)}
 if(B&&!B.gone&&(!B.dead||fc%4<2))dm(B);dP();
@@ -206,7 +264,7 @@ g.restore();g.textAlign='center';
 if(B&&!B.gone&&st!='WIN'){g.fillStyle='rgba(0,0,0,.6)';g.fillRect(148,8,604,18);g.fillStyle=['','#e5534b','#f0883e','#d29922'][B.ph];g.fillRect(150,10,600*Math.max(0,B.hp/B.mhp),14);g.fillStyle='#fff';g.font='bold 12px sans-serif';g.fillText('MA VƯƠNG HẮC ÁM · Giai đoạn '+B.ph+'/3',W/2,22)}
 if(banner&&banner[1]>0){g.globalAlpha=Math.min(1,banner[1]/30);g.fillStyle='#fff';g.font='bold 28px sans-serif';g.fillText(banner[0],W/2,100);g.globalAlpha=1}
 if(msg&&msg[1]>0){g.globalAlpha=Math.min(1,msg[1]/30);g.fillStyle='#ffd33d';g.font='bold 16px sans-serif';g.fillText(msg[0],W/2,60);g.globalAlpha=1}
-if(st=='WIN'&&wa&&wt-wa>20){g.fillStyle='#ffd33d';g.font='bold 22px sans-serif';g.fillText('Trọng Thủy và Mị Nương đoàn tụ!',W/2,100)}
+if(st=='WIN'&&wa&&wt-wa>20){g.fillStyle='#ffd33d';g.font='bold 22px sans-serif';g.fillText('Trọng Thủy và Mị Châu đoàn tụ!',W/2,100)}
 if(fade>0){g.fillStyle='rgba(0,0,0,'+fade+')';g.fillRect(0,0,W,H)}}
 // ===== VẬT PHẨM, RƯƠNG KHO BÁU, TÚI ĐỒ =====
 const IT=[{n:'Cung Gỗ',r:'Thường',c:'#c9d1d9',f:'Bắn 1 mũi tên mỗi lượt, sát thương 25. Vũ khí khởi đầu.'},
@@ -214,7 +272,7 @@ const IT=[{n:'Cung Gỗ',r:'Thường',c:'#c9d1d9',f:'Bắn 1 mũi tên mỗi l�
 {n:'Nỏ Thần Liên Châu',r:'Sử Thi',c:'#c678ff',f:'Bắn 3 tia cùng lúc, bắn nhanh hơn, sát thương 55.'},
 {n:'Ngựa Sắt Phù Đổng',r:'Sử Thi',c:'#c678ff',f:'Chạy nhanh hơn, nhảy cao hơn và phun lửa thiêu kẻ địch ở gần.'},
 {n:'Ngọc Trai Tinh Khiết',r:'Huyền Thoại',c:'#ffb347',f:'+80 HP tối đa, +30 sát thương, hồi 25 HP mỗi khi hạ quái.'},
-{n:'Chìa Khóa Vạn Năng',r:'Thần Thoại',c:'#ff79c6',f:'Mở lồng giam Mị Nương ở Đỉnh Tháp Hắc Ám.'}];
+{n:'Chìa Khóa Vạn Năng',r:'Thần Thoại',c:'#ff79c6',f:'Mở lồng giam Mị Châu ở Đỉnh Tháp Hắc Ám.'}];
 function drawItem(c,id,x,y,s,t){c.save();c.translate(x,y);c.scale(s/100,s/100);c.lineCap='round';c.lineJoin='round';
 const gr=(a,b,d,e,p,q)=>{const z=c.createLinearGradient(a,b,d,e);z.addColorStop(0,p);z.addColorStop(1,q);return z};
 if(id==0){c.strokeStyle='#4a2a0e';c.lineWidth=9;c.beginPath();c.moveTo(8,-46);c.quadraticCurveTo(44,0,8,46);c.stroke();c.strokeStyle='#c68642';c.lineWidth=4;c.stroke();
@@ -229,11 +287,7 @@ else if(id==2){c.fillStyle='#5a3414';c.beginPath();c.moveTo(-44,-6);c.lineTo(30,
 c.strokeStyle=gr(0,-46,0,46,'#ffe27a','#c9921e');c.lineWidth=7;c.beginPath();c.moveTo(18,-44);c.quadraticCurveTo(56,0,18,44);c.stroke();c.strokeStyle='#eee';c.lineWidth=1.5;c.beginPath();c.moveTo(18,-44);c.lineTo(-6,0);c.lineTo(18,44);c.stroke();
 c.shadowColor='#58a6ff';c.shadowBlur=10;c.strokeStyle='#bfe3ff';c.lineWidth=3;for(const v of[-12,0,12]){c.beginPath();c.moveTo(-6,0);c.lineTo(48,v*.9);c.stroke();c.fillStyle='#ffd33d';c.beginPath();c.arc(48,v*.9,3,0,7);c.fill()}
 c.shadowBlur=0;c.fillStyle='#8a5a1c';c.fillRect(-26,-14,34,8);c.fillStyle='#58a6ff';c.beginPath();c.arc(-12,0,4,0,7);c.fill();c.strokeStyle='#ffd33d';c.lineWidth=4;c.beginPath();c.arc(-10,20,8,3.4,6);c.stroke()}
-else if(id==3){c.fillStyle=gr(0,-30,0,40,'#9aa4b4','#3a404c');c.beginPath();c.ellipse(-4,8,30,17,0,0,7);c.fill();c.beginPath();c.moveTo(14,0);c.lineTo(28,-30);c.lineTo(44,-34);c.lineTo(52,-22);c.lineTo(38,-17);c.lineTo(32,4);c.closePath();c.fill();
-for(const x of[-28,-16,10,22]){c.fillStyle='#4b5260';c.fillRect(x,18,7,20);c.fillStyle='#222';c.fillRect(x-1,38,9,4)}
-c.fillStyle=gr(0,-40,0,0,'#ffd24a','#ff3d00');for(let k=0;k<3;k++){const a=k*7,b=k*9;c.beginPath();c.moveTo(14+a,-4-b);c.quadraticCurveTo(2+a,-18-b,16+a,-26-b);c.quadraticCurveTo(14+a,-14-b,24+a,-10-b);c.fill()}
-c.beginPath();c.moveTo(-32,0);c.quadraticCurveTo(-52,-4,-48,-24);c.quadraticCurveTo(-42,-8,-30,-8);c.fill();
-c.fillStyle='#fff7a0';c.beginPath();c.arc(42,-26,2.6,0,7);c.fill();c.fillStyle='#ff6a1a';c.beginPath();c.arc(52,-21,3.5,0,7);c.fill();c.fillStyle='#c9d1d9';for(const p of[[-18,10],[-4,6],[10,12]]){c.beginPath();c.arc(p[0],p[1],2,0,7);c.fill()}}
+else if(id==3){c.translate(-8,32);c.scale(.9,.9);drawHorse(c,t||0,'idle',0,0)}
 else if(id==4){c.fillStyle=gr(0,0,0,52,'#ffe3ef','#c76b98');c.beginPath();c.moveTo(0,40);c.lineTo(-44,40);for(let k=0;k<6;k++){const a=Math.PI+k*Math.PI/6,b=a+Math.PI/6,m=a+Math.PI/12;c.quadraticCurveTo(Math.cos(m)*56,40+Math.sin(m)*56,Math.cos(b)*44,40+Math.sin(b)*44)}c.closePath();c.fill();
 c.strokeStyle='#b5578a';c.lineWidth=1.5;for(let k=0;k<=6;k++){const a=Math.PI+k*Math.PI/6;c.beginPath();c.moveTo(0,40);c.lineTo(Math.cos(a)*46,40+Math.sin(a)*46);c.stroke()}
 c.fillStyle='#e8a5c4';c.beginPath();c.ellipse(0,40,44,11,0,0,Math.PI);c.fill();
@@ -242,6 +296,47 @@ c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.ellipse(-8,-14,6,4,-.6,0,7);c
 else{c.shadowColor='#ffd33d';c.shadowBlur=8;c.strokeStyle=gr(-50,-20,-10,20,'#fff0a0','#c9921e');c.lineWidth=7;c.beginPath();c.arc(-26,0,16,0,7);c.stroke();c.lineWidth=3;for(let k=0;k<12;k++){const a=k*Math.PI/6;c.beginPath();c.moveTo(-26+Math.cos(a)*21,Math.sin(a)*21);c.lineTo(-26+Math.cos(a)*29,Math.sin(a)*29);c.stroke()}
 c.fillStyle='#e03a3a';c.beginPath();c.arc(-26,0,7,0,7);c.fill();c.fillStyle=gr(0,-4,0,6,'#ffe27a','#a8761a');c.fillRect(-10,-4,58,8);c.fillRect(6,-8,6,16);c.fillRect(30,4,7,14);c.fillRect(40,4,7,10);c.beginPath();c.moveTo(48,-5);c.lineTo(54,0);c.lineTo(48,5);c.fill()}
 c.restore()}
+// ===== NHÂN VẬT: sprite pixel-art theo ảnh tham chiếu (PNG nền trong suốt nhúng sẵn trong file, không cần ảnh ngoài) =====
+const HI=new Image(),MI=new Image();HI.src='data:image/png;base64,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';MI.src='data:image/png;base64,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';
+const HS={"k": 0.5, "cx": 49, "fy": 129, "by": 114, "bl": [29, 113, 18, 16], "br": [52, 113, 18, 16]},MS={"k": 0.5, "cx": 29, "fy": 137};
+// Trọng Thủy: thân + hai bàn chân tách riêng để làm hoạt ảnh chạy/nhảy; ảnh chưa nạp xong thì vẽ khối tạm
+function drawHero(c,p,a,hs){const I=HI,Q=HS;if(!I.naturalWidth){c.fillStyle='#b83a2e';c.fillRect(-12,-52,24,52);return}
+const hit=a=='shoot'||a=='hurt',mv=a=='run'||(hit&&p.gr&&p.vx!=0),air=a=='jump'||a=='fall'||(hit&&!p.gr),spd=Math.abs(p.vx)||3,s=p.t*spd*.07,k=Q.k,w=I.naturalWidth,h=I.naturalHeight,X=-Q.cx*k,Y=-Q.fy*k,walk=mv&&!hs;
+const bob=a=='win'?-Math.abs(Math.sin(p.t*.2))*5:walk?-Math.abs(Math.sin(s))*1.5:air?(p.vy<0?-1:1):Math.sin(p.t*.09)*.7;
+let dl=0,yl=0,dr=0,yr=0;if(walk){dl=Math.sin(s)*6;yl=-Math.max(0,Math.cos(s))*3;dr=-dl;yr=-Math.max(0,-Math.cos(s))*3}else if(air){dl=p.vy<0?4:2;yl=-5;dr=p.vy<0?-4:-2;yr=-3}
+c.save();c.imageSmoothingEnabled=true;if(walk)c.rotate(.05);if(a=='shoot')c.translate(-2,0);
+const by=Q.by,l=Q.bl,r=Q.br,dw=(sx,sy,sw,sh,ox,oy)=>c.drawImage(I,sx,sy,sw,sh,X+sx*k+ox,Y+sy*k+oy,sw*k,sh*k);
+dw(0,0,w,by,0,bob);dw(0,by,l[0],h-by,0,bob);dw(l[0]+l[2],by,r[0]-l[0]-l[2],h-by,0,bob);dw(r[0]+r[2],by,w-r[0]-r[2],h-by,0,bob);
+dw(l[0],l[1],l[2],l[3],dl,yl);dw(r[0],r[1],r[2],r[3],dr,yr);c.restore()}
+function dMC(x,free){g.save();g.translate(x,G);const I=MI,Q=MS;if(I.naturalWidth){const k=Q.k,t=fc,b=free?-Math.abs(Math.sin(t*.15))*4:Math.sin(t*.05)*.8;g.rotate(Math.sin(t*.04)*.015);g.imageSmoothingEnabled=true;g.drawImage(I,-Q.cx*k,-Q.fy*k+b,I.naturalWidth*k,I.naturalHeight*k)}g.restore()}
+// ===== NGỰA PHÙ ĐỔNG: vẽ bằng Canvas, chân FK 2 khớp, dùng chung cho trong game và biểu tượng =====
+function drawHorse(c,t,m,vy,spd){c.save();c.lineCap='round';c.lineJoin='round';
+const run=m=='run',air=m=='jump'||m=='fall',s=run?((t*spd/95)%1)*6.2832:0,hb=run?Math.sin(s*2)*1.2:Math.sin(t*.05)*1.3,bob=run?(1+Math.sin(s+.6))*1.3:air?0:Math.sin(t*.06)*.5,B='#8b95a6',D='#59627a',K='#2f3542',ef=Math.sin(t*.07)*.8,
+sw=(k,a)=>Math.sin(t*.12+k)*a+(run?-spd*.45:0);
+if(m=='jump')c.rotate(-.13);else if(m=='fall')c.rotate(.11);else if(run)c.rotate(Math.sin(s)*.025);
+const leg=(hx,hy,off,k,col)=>{hy-=bob;let a1,fx;
+if(run){const q=s+off;a1=.85*Math.sin(q)*(k>0?1:.85);fx=(.12+1.2*Math.pow(Math.max(0,Math.cos(q)),2))*(k>0?1:.8)}
+else if(air){a1=k>0?(m=='jump'?.85:.45):(m=='jump'?-.75:-.3);fx=1.25}else{a1=k>0?.04:-.12;fx=k>0?.06:.5}
+const a2=a1-k*fx,kx=hx+8*Math.sin(a1),ky=hy+8*Math.cos(a1),px=kx+9*Math.sin(a2),py=ky+9*Math.cos(a2);
+c.strokeStyle=col;c.lineWidth=7;c.beginPath();c.moveTo(hx,hy);c.lineTo(kx,ky);c.stroke();c.lineWidth=4.4;c.beginPath();c.moveTo(kx,ky);c.lineTo(px,py);c.stroke();
+c.fillStyle=col;c.beginPath();c.arc(kx,ky,3.4,0,7);c.fill();c.save();c.translate(px,py);c.rotate(-a2);c.fillStyle='#22262e';c.beginPath();c.moveTo(-2.8,-1);c.lineTo(3,-1);c.lineTo(4.2,4);c.lineTo(-3.6,4);c.closePath();c.fill();c.fillStyle='#4a5160';c.fillRect(-2,0,2,3);c.restore()};
+leg(-16,-20.3,.55,-1,'#454d5f');leg(15,-21,3.3,1,'#454d5f');
+c.save();c.translate(0,-bob);
+for(let k=0;k<3;k++){const tx=-35-k*3+sw(k,3)-(run?8:0),ty=-10+k*5-(run?14:0)-(air?5:0);c.strokeStyle='#272b35';c.lineWidth=4.5;c.beginPath();c.moveTo(-22,-30);c.quadraticCurveTo(-33,-33+(run?-4:0),tx,ty);c.stroke();c.fillStyle='#ff9d3c';c.beginPath();c.arc(tx,ty,1.8,0,7);c.fill()}
+c.fillStyle=B;c.beginPath();c.ellipse(0,-25,25,9.5+(air?0:Math.sin(t*.06)*.4),0,0,7);c.fill();c.beginPath();c.ellipse(-15,-27,11,9,0,0,7);c.fill();c.beginPath();c.ellipse(14,-25,11,10,0,0,7);c.fill();
+c.fillStyle='rgba(30,36,50,.35)';c.beginPath();c.ellipse(0,-17.5,21,3.6,0,0,7);c.fill();c.fillStyle='rgba(205,215,232,.45)';c.beginPath();c.ellipse(-2,-32.5,18,2.2,0,0,7);c.fill();
+c.strokeStyle='rgba(40,48,66,.55)';c.lineWidth=1.4;c.beginPath();c.moveTo(9,-33);c.quadraticCurveTo(14,-26,11,-17);c.moveTo(-19,-33);c.quadraticCurveTo(-12,-26,-14,-17);c.stroke();
+c.fillStyle=B;c.beginPath();c.moveTo(11,-32);c.quadraticCurveTo(20,-47,34,-55+hb);c.quadraticCurveTo(47,-53+hb,57,-41+hb);c.lineTo(58,-36+hb);c.quadraticCurveTo(55,-33+hb,52,-34.5+hb);c.lineTo(45,-39+hb);c.quadraticCurveTo(39,-40+hb,37,-42+hb);c.quadraticCurveTo(34,-30,27,-17);c.lineTo(11,-20);c.closePath();c.fill();
+c.fillStyle='rgba(30,36,50,.3)';c.beginPath();c.moveTo(37,-42+hb);c.quadraticCurveTo(34,-30,27,-17);c.lineTo(22,-18);c.quadraticCurveTo(30,-30,32,-41+hb);c.fill();
+c.fillStyle='rgba(205,215,232,.35)';c.beginPath();c.ellipse(41,-47+hb,5,3,.5,0,7);c.fill();c.fillStyle='#6f788b';c.beginPath();c.ellipse(55,-38+hb,4,3.2,.6,0,7);c.fill();
+c.fillStyle=K;c.beginPath();c.ellipse(57,-39.5+hb,1.3,1.8,.5,0,7);c.fill();c.strokeStyle=K;c.lineWidth=1;c.beginPath();c.moveTo(57,-36+hb);c.lineTo(52,-36+hb);c.stroke();
+c.fillStyle='#e8c872';c.beginPath();c.ellipse(45,-48+hb,2.8,2.1,.3,0,7);c.fill();c.fillStyle='#111';c.beginPath();c.arc(45.6,-48+hb,1.5,0,7);c.fill();c.fillStyle='#fff';c.fillRect(45,-49+hb,1,1);
+c.fillStyle=D;c.beginPath();c.moveTo(36,-55+hb);c.lineTo(36.5,-64+hb);c.lineTo(41,-55.5+hb);c.fill();c.fillStyle=B;c.beginPath();c.moveTo(32,-54.5+hb);c.lineTo(31+ef,-64+hb);c.lineTo(37,-55+hb);c.fill();c.fillStyle=D;c.beginPath();c.moveTo(33.3,-55+hb);c.lineTo(32.2+ef,-61+hb);c.lineTo(35.3,-55.3+hb);c.fill();
+c.restore();
+leg(-16,-20.3,0,-1,B);leg(15,-21,2.6,1,B);
+c.save();c.translate(0,-bob);
+for(let k=0;k<7;k++){const u=k/6,v=1-u,bx=v*v*11+2*u*v*20+u*u*34,by=v*v*-32+2*u*v*-47+u*u*(-55+hb),tx=bx-9+sw(k,2.5)*.8,ty=by+9+Math.sin(t*.1+k)*1.5-(run?4:0);c.strokeStyle='#272b35';c.lineWidth=3.6;c.beginPath();c.moveTo(bx,by);c.quadraticCurveTo(bx-2,by+4,tx,ty);c.stroke();c.fillStyle='#ff9d3c';c.beginPath();c.arc(tx,ty,1.5,0,7);c.fill()}
+c.strokeStyle='#272b35';c.lineWidth=3;c.beginPath();c.moveTo(36,-56+hb);c.quadraticCurveTo(42,-58+hb,43,-51+hb);c.stroke();c.restore();c.restore()}
 const ic=[];let rk='',cs=0,cwt=0,lvs='',dup=0;
 function icon(i){if(!ic[i]){const c=document.createElement('canvas');c.width=c.height=64;drawItem(c.getContext('2d'),i,32,32,58,0);ic[i]=c.toDataURL()}return ic[i]}
 function rel2(){const k=S.rel.join('');if(k==rk)return;rk=k;$('rel').innerHTML=IT.map((it,i)=>'<img title="'+it.n+'" src="'+icon(i)+'" class="'+((i?S.rel[i-1]:!S.rel[1])?'on':'')+'">').join('')}
